@@ -1,0 +1,395 @@
+Dim holidays_sat_off As Integer
+Dim holidays_sat_working As Integer
+
+Dim days_in_month As Integer
+Dim intMonth As Integer
+
+Dim emp_code(1 To 1000) As Integer
+Const MIN_HALF_DAY_HOURS = 6 * 60 'in minutes
+Dim holidays(1 To 31) As Integer
+Dim holidaysLIB(1 To 31) As Integer
+Dim emp_code_start_row As Integer
+
+Public Sub Start()
+    
+    Dim row, col, r As Long
+    Dim i As Integer
+    Dim emp_count As Integer
+    
+    Dim ws As Worksheet
+    Set ws = Sheets.Add 'add new worksheet
+                
+    'intial settings
+    intMonth = 5  '1-Jan, 2-Feb, ...
+    days_in_month = 31
+    emp_code_start_row = 11
+    holidays_sat_off = 8
+    holidays_sat_working = 6
+    holidays(1) = 1
+    holidays(2) = 5
+    holidays(3) = 11
+    holidays(4) = 12
+    holidays(5) = 18
+    holidays(6) = 19
+    holidays(7) = 25
+    holidays(8) = 26
+
+  
+       
+    
+    holidaysLIB(1) = 1
+    holidaysLIB(2) = 5
+    holidaysLIB(3) = 12
+    holidaysLIB(4) = 18
+    holidaysLIB(5) = 19
+    holidaysLIB(6) = 26
+
+    
+    ws.Name = "Report" 'set new worksheet name
+    row = 1 'for new sheet
+    col = 1 'for new sheet
+    emp_count = 0 'count of number of employees
+        
+    'loop through all worksheet data
+    For Each existingWorksheet In Worksheets
+               
+        r = emp_code_start_row 'row no for existing worksheet where emp code starts
+        If existingWorksheet.Name <> "Report" Then 'skip new added worksheet
+                                                        
+            Do While 1
+                With ws
+                    If existingWorksheet.Range("C" & r).Value = "" Then Exit Do
+                    emp_count = emp_count + 1
+                    emp_code(emp_count) = CInt(existingWorksheet.Range("C" & r).Value)
+                    
+                    .Cells(row, 1) = "Nm"
+                    .Cells(row, 2) = existingWorksheet.Range("J" & r).Value
+                
+                    row = row + 1
+                    .Cells(row, col) = "Dt"
+                    existingWorksheet.Range("B7:AF7").Copy
+                    .Range("B" & row).Select
+                    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+                        :=False, Transpose:=False
+                                                    
+                    row = row + 1
+                    .Cells(row, col) = "In"
+                    existingWorksheet.Range("B" & r + 2 & ":AF" & r + 2).Copy
+                    .Range("B" & row).Select
+                    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+                        :=False, Transpose:=False
+
+                    row = row + 1
+                    .Cells(row, col) = "Ot"
+                    existingWorksheet.Range("B" & r + 3 & ":AF" & r + 3).Copy
+                    .Range("B" & row).Select
+                    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+                        :=False, Transpose:=False
+                    
+                    row = row + 1
+                    .Cells(row, col) = "Tm"
+                    row = row + 1
+                    '.Cells(row, col) = existingWorksheet.Range("D" & r).Value
+                    'emp_code(emp_count) = CInt(existingWorksheet.Range("D" & r).Value)
+                    
+                    row = row + 1
+                    r = r + 6
+                    
+                End With
+            Loop
+        End If
+    Next
+    
+    'Range("D:D,K:K,P:P,U:U,Y:Y,AF:AF").Select
+    'Range("AF11").Activate
+    'Selection.Delete Shift:=xlToLeft
+    
+    Range("A1").Select
+    Range(Selection, ActiveCell.SpecialCells(xlLastCell)).Select
+    With Selection.Font
+        .Name = "Arial"
+        .Size = 7
+    End With
+    
+
+    For i = 3 To row Step 6
+        display_info ws, i
+    Next
+    
+    For i = 1 To row Step 6
+        'name
+        Range("B" & i & ":G" & i).Select
+        With Selection
+            .Font.Bold = True
+            .HorizontalAlignment = xlLeft
+            .VerticalAlignment = xlBottom
+            .WrapText = True
+            .Orientation = 0
+            .AddIndent = False
+            .IndentLevel = 0
+            .ShrinkToFit = False
+            .ReadingOrder = xlContext
+            .MergeCells = True
+        End With
+        Selection.Merge
+                
+        'msg
+        Range("H" & i & ":AF" & i).Select
+        With Selection
+            .Font.Bold = False
+            .HorizontalAlignment = xlRight
+            .VerticalAlignment = xlBottom
+            .WrapText = True
+            .Orientation = 0
+            .AddIndent = False
+            .IndentLevel = 0
+            .ShrinkToFit = False
+            .ReadingOrder = xlContext
+            .MergeCells = True
+        End With
+        Selection.Merge
+                    
+        'all
+        Range("A" & i & ":AF" & i + 4).Select
+        Selection.Borders(xlDiagonalDown).LineStyle = xlNone
+        Selection.Borders(xlDiagonalUp).LineStyle = xlNone
+        With Selection.Borders(xlEdgeLeft)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlEdgeTop)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlEdgeBottom)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlEdgeRight)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlThin
+        End With
+        With Selection.Borders(xlInsideVertical)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlHairline
+        End With
+        With Selection.Borders(xlInsideHorizontal)
+            .LineStyle = xlContinuous
+            .ColorIndex = xlAutomatic
+            .TintAndShade = 0
+            .Weight = xlHairline
+        End With
+        
+        
+        Range("B" & i + 2 & ":AF" & i + 4).Select
+        Selection.NumberFormat = "h:mm;@"
+        
+        Range("B" & i + 1 & ":AF" & i + 4).Select
+        With Selection
+            .HorizontalAlignment = xlCenter
+            .VerticalAlignment = xlBottom
+        End With
+    Next
+    
+    Cells.Select
+    Cells.EntireColumn.AutoFit
+    
+    With ws.PageSetup
+        .LeftMargin = Application.InchesToPoints(0.2)
+        .RightMargin = Application.InchesToPoints(0.2)
+        .TopMargin = Application.InchesToPoints(0.5)
+        .BottomMargin = Application.InchesToPoints(0.5)
+        .HeaderMargin = Application.InchesToPoints(0.3)
+        .FooterMargin = Application.InchesToPoints(0.3)
+        .Orientation = xlLandscape
+    End With
+    'MsgBox emp_count
+End Sub
+
+Public Sub display_info(ws As Worksheet, r As Integer)
+    Dim tin As Date
+    Dim tout As Date
+    Dim MAX_IN_TIME As Date
+    Dim tot_time As String
+    Dim t1, t2, tmp
+    Dim msg As String
+    Dim early_late_count, tot_minutes, not_reporting, in_out_absent As Integer
+    Dim half_day As Integer
+    Dim ecode As Integer
+    Dim hours_per_day As Double
+    Dim leaves, od As Double
+    Dim sat_working As Boolean
+    Dim no_of_holidays As Integer
+    Dim total_working_minutes, actual_working_minutes As Double
+    Dim MIN_MINUTES_OF_WORKING As Integer
+    Dim total_cl_cut As Double
+    Dim hoildays_worked As Integer
+    
+    Set rng = Workbooks("leaves.xls").Sheets("data").Range("A2:G234")
+    ecode = emp_code((r + 3) / 6)
+    hours_per_day = 8#
+    sat_working = False
+    leaves = 0
+    od = 0
+    
+    With Application.WorksheetFunction
+        hours_per_day = CInt(.VLookup(ecode, rng, 3, True))
+        leaves = CDbl(.VLookup(ecode, rng, 4, True))
+        od = CDbl(.VLookup(ecode, rng, 5, True))
+        If UCase(.VLookup(ecode, rng, 7, True)) = "Y" Then sat_working = True
+    End With
+    
+    If hours_per_day = 0 Then hours_per_day = 8#
+    no_of_holidays = holidays_sat_off
+    
+    If sat_working Then no_of_holidays = holidays_sat_working
+    MIN_MINUTES_OF_WORKING = (hours_per_day - 1) * 60 + 50
+    
+    MAX_IN_TIME = TimeSerial(14, 0, 0) 'set to 2PM
+    
+    total_working_minutes = hours_per_day * 60 * (days_in_month - no_of_holidays - leaves - od)
+    actual_working_minutes = 0
+    
+    With ws
+        early_late_count = 0
+        not_reporting = 0
+        in_out_absent = 0
+        half_day = 0
+        hoildays_worked = 0
+        
+        For i = 2 To 32
+            
+                'in time
+                t1 = .Cells(r, i)
+                If t1 <> "" Then
+                    tin = Format(t1, "Short Time")
+                End If
+                
+                'out time
+                t2 = .Cells(r + 1, i)
+                If t2 <> "" Then
+                    tout = Format(t2, "Short Time")
+                End If
+                
+                If t1 <> "" And tin > MAX_IN_TIME And t2 = "" Then
+                    .Cells(r, i) = ""
+                    .Cells(r + 1, i) = tin
+                End If
+                
+                If .Cells(r, i) <> "" And .Cells(r + 1, i) <> "" And Format(.Cells(r, i), "Short Time") < Format(.Cells(r + 1, i), "Short Time") Then
+                    tot_minutes = DateDiff("n", Format(.Cells(r, i), "Short Time"), Format(.Cells(r + 1, i), "Short Time"))
+                    actual_working_minutes = actual_working_minutes + tot_minutes
+                    
+                    'worked on holiday calculation
+                    If tot_minutes > 0 Then
+                        If sat_working Then
+                            For X = 1 To UBound(holidaysLIB)
+                                If i - 1 = holidaysLIB(X) Then
+                                    hoildays_worked = hoildays_worked + 1 'worked on holiday
+                                    'actual_working_minutes = actual_working_minutes - tot_minutes
+                                End If
+                                If holidaysLIB(X) = 0 Then Exit For
+                            Next
+                        Else
+                            For X = 1 To UBound(holidays)
+                                If i - 1 = holidays(X) Then
+                                    hoildays_worked = hoildays_worked + 1 'worked on holiday
+                                    'actual_working_minutes = actual_working_minutes - tot_minutes
+                                End If
+                                If holidays(X) = 0 Then Exit For
+                            Next
+                        End If
+                    End If
+                
+                    If tot_minutes <= MIN_HALF_DAY_HOURS Then
+                        half_day = half_day + 1
+                    ElseIf tot_minutes <= MIN_MINUTES_OF_WORKING Then
+                        early_late_count = early_late_count + 1
+                    End If
+                    
+                    tot_time = Int(tot_minutes / 60)
+                    tot_time = tot_time & ":"
+                    tot_time = tot_time & DateDiff("n", Format(.Cells(r, i), "Short Time"), Format(.Cells(r + 1, i), "Short Time")) Mod 60
+                    
+                    .Cells(r + 2, i) = tot_time
+                    
+                ElseIf .Cells(r, i) = "" And .Cells(r + 1, i) = "" And .Cells(r - 1, i) <> "" Then
+                    not_reporting = not_reporting + 1
+                ElseIf (.Cells(r, i) = "" Or .Cells(r + 1, i) = "") And .Cells(r - 1, i) <> "" Then
+                    in_out_absent = in_out_absent + 1
+                End If
+            
+        Next
+        
+        msg = "Not Reported=" & CStr(not_reporting)
+        msg = msg & "; Holidays=" & CStr(no_of_holidays)
+        
+        If not_reporting - no_of_holidays > 0 Then
+            msg = msg & "; CL-Cut=" & CStr(not_reporting - no_of_holidays)
+        Else
+            msg = msg & "; CL-Cut=" & CStr(0)
+        End If
+        
+        msg = msg & "; In/Out Missing=" & CStr(in_out_absent)
+        msg = msg & "; CL-Cut=" & CStr(in_out_absent * 0.5)
+        msg = msg & "; Half Day=" & CStr(half_day)
+        msg = msg & "; CL-Cut=" & CStr(half_day * 0.5)
+        msg = msg & "; Late coming/Early going=" & CStr(early_late_count)
+        msg = msg & "; CL-Cut=" & CStr(Round(early_late_count / 3#) * 0.5)
+        msg = msg & "; HolidayWorking=" & CStr(hoildays_worked)
+        msg = msg & "; L=" & CStr(leaves)
+        msg = msg & "; OD=" & CStr(od)
+        total_cl_cut = (not_reporting - no_of_holidays) + in_out_absent * 0.5 + half_day * 0.5 + Round(early_late_count / 3#) * 0.5 - (leaves + od)
+        If total_cl_cut > 0 And (actual_working_minutes <= total_working_minutes) Then
+            msg = msg & "; LWP=" & CStr(total_cl_cut)
+        Else
+            msg = msg & "; LWP=0"
+        End If
+        
+        'No CL Cut
+        '.Cells(r + 1, i + 1) = total_working_minutes
+        '.Cells(r + 2, i + 1) = actual_working_minutes
+        'If (actual_working_minutes >= total_working_minutes) Then msg = msg + "; NO CL CUT"
+        
+        .Cells(r - 2, 10) = msg
+        .Cells(r - 2, 33) = Fix(actual_working_minutes / 60#) & "." & actual_working_minutes Mod 60 & "/" & Fix(total_working_minutes / 60#) & "." & total_working_minutes Mod 60
+        .Cells(r + 2, 33) = "=SUM(B" & (r + 2) & ":AF" & (r + 2) & ")"
+        
+        Range("AG" & (r + 2)).Select
+        Selection.NumberFormat = "[h]:mm"
+        
+    End With
+End Sub
+
+Sub test()
+    Dim rng As Range
+    Dim ecode As Integer
+    Dim leaves, od As Double
+    Dim sat_working As Boolean
+    
+    Set rng = Workbooks("leaves.xls").Sheets("data").Range("A2:G234")
+    ecode = 353
+    hours_per_day = 8
+    sat_working = False
+    
+    With Application.WorksheetFunction
+        hours_per_day = CInt(.VLookup(ecode, rng, 3, True))
+        leaves = CDbl(.VLookup(ecode, rng, 4, True))
+        od = CDbl(.VLookup(ecode, rng, 5, True))
+        If .VLookup(ecode, rng, 7, True) = "Y" Then sat_working = True
+    End With
+    MsgBox hours_per_day & "-" & leaves & "-" & od & "-" & sat_working
+End Sub
+
+
+
